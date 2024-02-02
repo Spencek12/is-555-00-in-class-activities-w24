@@ -1,3 +1,28 @@
+########################
+#       1/24/24
+########################
+
+#DATA CLEANING ASSIGNMENT
+
+#question 5 help:
+# the last paragraph will give you the 10 districts in question
+# hardest part is extracting a usable district column:
+# ***separate_wider_delim
+# ^have to remove/clean surrounding pipes for the above function to be useful
+# column separating doesn't always have a district and that's fine (ignore it)
+# save top 3 wherever (can copy and paste) -> whatever this means
+
+#This will detect 'one' and 'ones' etc.
+str_detect(col_name, 'one')
+
+#^If you only want 'one' than use: 
+col_name %in% names #or use == so it's exact
+
+#question 7:
+# 3 lines down talks about why it's abnormal
+# challenge for the question is figuring out how to fix it
+# range means min and max
+
 # Function Summary --------------------------------------------------------------------------------------
 
 # JUST TWO FUNCTIONS:
@@ -145,7 +170,15 @@ bob <- read_csv('https://www.dropbox.com/s/mozqpceit51hia7/bob_ross.csv?dl=1')
 # see if you can pivot the religious income data into a tidier format
 # what is the most common income bracket for each religion?
 
-
+#Always give 3 things to this function when using pivot longer:
+ri %>% 
+  pivot_longer(
+    cols = !religion,
+    names_to = 'income_bracket',
+    values_to = 'household_count',
+  ) %>% 
+  group_by(religion) %>% 
+  slice_max(household_count, with_ties = F)
 
 
 # IMPORTANT: Notice how EASY it is to find the top income for each religion because
@@ -160,6 +193,124 @@ ri %>%
   ) %>% 
   group_by(religion) %>% 
   slice_max(household_count, with_ties = F)
+
+
+
+bnames %>% 
+  select(year) %>% 
+  summary()
+
+bnames %>% 
+  summary()
+
+bnames %>% 
+  count(sex)
+
+bnames %>% 
+  pivot_wider(
+    names_from = year,
+    values_from = n,
+  )
+
+really_wide <- bnames %>% 
+  pivot_wider(
+    names_from = c(year, sex),
+    values_from = n
+  )
+
+bnames %>% 
+  pivot_wider(
+    names_from = c(name, sex),
+    values_from = n
+  )
+
+really_wide %>% 
+  pivot_longer(
+    cols = !name,
+    names_to = c('year', 'sex'),
+    names_sep = '_'
+  ) %>% 
+  filter(is.na(value))
+
+# Pivoting 1/29/24
+bob %>% 
+  pivot_longer(
+    cols = !c(episode, season, episode_num, title)
+  )
+
+bob_long <- bob %>% 
+  pivot_longer(
+    cols = !1:4,
+    names_to = "object",
+    values_to = 'is_present'
+  )
+
+#which objects occur most frequently
+#one way
+bob_long %>% 
+  group_by(object) %>% 
+  summarise(object_count = sum(is_present)) %>% 
+  arrange(desc(object_count))
+
+#another way
+bob_long %>% 
+  filter(is_present == 1) %>% 
+  group_by(object) %>% 
+  summarise(object_count = n()) %>% 
+  arrange(desc(object_count))
+
+#what was the season when bob painted the most mountains?
+#one way
+bob_long %>% 
+  filter(str_detect(object, 'mountain')) %>% 
+  group_by(season) %>% 
+  summarise(mtn_count = sum(is_present == 1))
+
+#another way
+bob_long %>% 
+  group_by(season) %>% 
+  summarise(mtn_count = sum(is_present == 1 & str_detect(object, 'mountain')))
+
+####### GOING TO DO THIS ON THE END TO END ASSIGNMENT
+#warning message:
+bob_long %>% 
+  select(season, object, is_present) %>% 
+  pivot_wider(
+    names_from = season,
+    values_from = is_present
+  )
+#fix it:
+bob_long %>% 
+  select(season, object, is_present) %>% 
+  group_by(season, object) %>% 
+  summarise(count = sum(is_present == 1)) %>% 
+  pivot_wider(
+    names_from = season,
+    values_from = count
+  ) %>% 
+  print(n = 70)
+
+songs <- read_csv('https://www.dropbox.com/s/85j3vgp7165i1xr/song_chart.csv?dl=1')
+
+#start with this
+songs %>% 
+  pivot_longer(
+    cols = starts_with('wk'),
+    names_to = 'week',
+    values_to = 'rank'
+  ) %>% 
+  filter(!is.na(rank))
+
+#what was the rank at which each song debuted?
+songs %>% 
+  pivot_longer(
+    cols = starts_with('wk'),
+    names_to = 'week',
+    values_to = 'rank'
+  ) %>% 
+  filter(!is.na(rank)) %>% 
+  filter(week == 'wk1')
+
 
 
 
