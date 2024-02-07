@@ -63,6 +63,9 @@ movies %>%
 
 
 
+
+
+
 steak <- read_csv('https://www.dropbox.com/scl/fi/mzg5oxenh9oonbwpwgxzm/steak_data.csv?rlkey=2gbf1kfqfkln0zf2alwo32nza&dl=1')
 
 
