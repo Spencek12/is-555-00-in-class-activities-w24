@@ -5,13 +5,60 @@ movies <- read_csv('https://www.dropbox.com/scl/fi/pi7nexxuoqnvviwfzwun9/movie_r
 
 # Scatter of RT critist vs RT Users. Or vs imdb. Or vs metacritic...
 # add some facets...
+movies %>% 
+  ggplot(aes(x = rating, y = imdb, color = rating, fill = rating)) +
+  geom_col()
+
+movies %>% 
+  ggplot(aes(x = rating, y = rotten_tomatoes, color = rating, fill = rating)) +
+  geom_col()
 
 
+
+#geom_bar: when data has not been summarized, use this
+#geom_col: when data is already structured and summarized, specify x and y and use geom_col
 
 # But how do we compare ratings from different ratings sites? 
 # Or ratings from critics vs. users?
 
+#In order to compare above (imdb/ rotten tomatoes):
+movies %>% 
+  pivot_longer(
+    !rating,
+    names_to = 'source',
+    values_to = 'percentage'  ) %>% 
+  filter(!is.na(percentage)) %>% 
+  ggplot(aes(x = rating, y = percentage, color = rating, fill = rating)) +
+  geom_col(position = 'dodge') +
+  facet_wrap(~source)
 
+#experts vs users:
+
+#1. Not as useful (facet_wrap)
+movies %>% 
+  pivot_longer(
+    !rating,
+    names_to = 'source',
+    values_to = 'percentage'  ) %>% 
+  filter(!is.na(percentage)) %>% 
+  mutate(review_type = if_else(str_detect(source, 'user'), 
+                               'Audience', 'Critic')) %>% 
+  ggplot(aes(x = rating, y = percentage, color = rating, fill = rating)) +
+  geom_col(position = 'dodge') +
+  facet_wrap(review_type~source)
+
+#1. Better (facet_grid)
+movies %>% 
+  pivot_longer(
+    !rating,
+    names_to = 'source',
+    values_to = 'percentage'  ) %>% 
+  filter(!is.na(percentage)) %>% 
+  mutate(review_type = if_else(str_detect(source, 'user'), 
+                               'Audience', 'Critic')) %>% 
+  ggplot(aes(x = rating, y = percentage, color = rating, fill = rating)) +
+  geom_col(position = 'dodge') +
+  facet_grid(review_type~source)
 
 
 
