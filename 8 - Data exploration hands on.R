@@ -14,3 +14,31 @@ df1 %>% cor()
 
 # simple regression analysis:
 lm(y ~ x, data = df1) %>% coefficients()
+
+combined_df <- bind_rows(
+  mutate(df1, source = "df1"),
+  mutate(df2, source = "df2"),
+  mutate(df3, source = "df3"),
+  mutate(df4, source = "df4")
+) %>% print(n = 100)
+
+bind_rows(df1, df2, df3, df4, .id = 'df') %>% 
+  ggplot(aes(x = y, fill = df)) + 
+  geom_density(alpha = .4)
+
+bind_rows(df1, df2, df3, df4, .id = 'df') %>% 
+  ggplot(aes(x = x, y = y, color = df)) + 
+  geom_point(size = 1) +
+  geom_smooth(method = lm, se = F) +
+  facet_wrap(~df)
+
+
+# A few sample calculations:
+combined_df_2 %>% summarize(across(everything(), list(mean = ~mean(.x), 
+                                            sd = ~sd(.x))))
+
+# correlation matrix:
+combined_df_2 %>% cor()
+
+# simple regression analysis:
+lm(y ~ x, data = combined_df_2) %>% coefficients()
